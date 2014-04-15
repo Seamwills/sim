@@ -159,6 +159,7 @@ do_file(char *name, list sen)
     char *outline, line[MAXLINE+1];
     char infile[256], outfile[256], template[256];
 	FILE *out, *in;
+    unsigned int extensions;
     hoedown_buffer *buf;
     type *pair;
 
@@ -169,7 +170,8 @@ do_file(char *name, list sen)
     sprintf(outfile, "site/%s.html", pair->date);
     sprintf(template, ".sim/article.html");
 
-    buf = hoedown(infile);
+    extensions = HOEDOWN_EXT_FENCED_CODE | HOEDOWN_EXT_TABLES | HOEDOWN_EXT_FOOTNOTES;
+    buf = hoedown(infile, extensions);
 
     /* get article title */
     pair->title = get_title(buf);
@@ -207,7 +209,7 @@ do_file(char *name, list sen)
 }
 
 hoedown_buffer *
-hoedown(char *file)
+hoedown(char *file, unsigned int extensions)
 {
 	FILE *in;
 	hoedown_buffer *ib, *ob;
@@ -243,7 +245,7 @@ hoedown(char *file)
 	}
 
 	renderer = hoedown_html_renderer_new(0, 0);
-	document = hoedown_document_new(renderer, 0, 16);
+	document = hoedown_document_new(renderer, extensions, 16);
 
 	hoedown_document_render(document, ob, ib->data, ib->size);
 

@@ -59,7 +59,7 @@ int
 do_file(char *name, list sen);
 
 hoedown_buffer *
-hoedown(char *file);
+hoedown(char *file, unsigned int extensions);
 
 char *
 get_date(char *name);
