@@ -187,14 +187,28 @@ do_file(char *name, list sen)
     while (fgets(line, MAXLINE, in) != NULL) {
         if (strstr(line, "\%title\%") != NULL) {
             outline = str_rep(line, "\%title\%", pair->title);
-            fputs(outline, out);
+            strcpy(line, outline);
             free(outline);
-            continue;
-        } else if (strstr(line, "\%content\%") != NULL) {
+        }
+
+        if (strstr(line, "\%url\%") != NULL) {
+            outline = str_rep(line, "\%url\%", pair->date);
+            strcpy(line, outline);
+            free(outline);
+        }
+
+        if (strstr(line, "\%id\%") != NULL) {
+            outline = str_rep(line, "\%id\%", pair->date);
+            strcpy(line, outline);
+            free(outline);
+        }
+
+        if (strstr(line, "\%content\%") != NULL) {
             fwrite(buf->data, 1, buf->size, out);
             continue;
-        } else
-            fputs(line, out);
+        }
+
+        fputs(line, out);
     }
 
 	if (ferror(out)) {
@@ -319,10 +333,10 @@ get_title(hoedown_buffer *buf)
 void
 build_index(list sen)
 {
-    int     i;
+    int     i, cnt, cur, last;
     char    index[256], template[256], date[11];
     char    *outline, line[MAXLINE+1];
-    char    site[] = "index";
+    char    site[] = "Seamwills";
     FILE *in, *out;
 
     if (sen->next == NULL)
@@ -335,6 +349,7 @@ build_index(list sen)
     out = fopen(index, "w");
 
     date_sort(sen);
+    cnt = last = 0;
     while (fgets(line, MAXLINE, in) != NULL) {
         if (strstr(line, "\%title\%") != NULL) {
             outline = str_rep(line, "\%title\%", site);
@@ -353,10 +368,20 @@ build_index(list sen)
                     date[i] = p->data->date[i];
                 date[i] = '\0';
 
+                cur = atoi(date);
+                if (cur != last)
+                    fprintf(out, "<span class=\"year\">%d</span><br />\n", cur);
+                last = cur;
                 fprintf(out, "<li><span class=\"date\">%s</span>"
                         " <span class=\"title\"><a href=\"%s.html\">"
                         "%s</a></span></li>\n",
                         p->data->date, date, p->data->title);
+
+                cnt++;
+                if (cnt % 20 == 0 && p->next != sen) {
+                    fprintf(out, "<hr />\n");
+                }
+
                 p = p->next;
             }
 
