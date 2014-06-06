@@ -152,73 +152,93 @@ date_sort(list sen)
     quicksort(sen->next, sen->prev);
 }
 
-/* file process */
-int
-do_file(char *name, list sen)
+/* handle all source files */
+void
+handle_source(list sen)
 {
+    unsigned int extensions;
+    extensions = HOEDOWN_EXT_FENCED_CODE | HOEDOWN_EXT_TABLES | HOEDOWN_EXT_FOOTNOTES;
+
+    process_file(sen, extensions);
+}
+
+int
+process_file(list sen, unsigned extensions) {
+    DIR     *dp;
+    struct dirent   *dirp;
     char *outline, line[MAXLINE+1];
     char infile[256], outfile[256], template[256];
 	FILE *out, *in;
-    unsigned int extensions;
     hoedown_buffer *buf;
     type *pair;
 
-    pair = malloc(sizeof(type));
-    pair->date = get_date(name);
-
-    sprintf(infile, "markdown/%s", name);
-    sprintf(outfile, "site/%s.html", pair->date);
-    sprintf(template, ".sim/article.html");
-
-    extensions = HOEDOWN_EXT_FENCED_CODE | HOEDOWN_EXT_TABLES | HOEDOWN_EXT_FOOTNOTES;
-    buf = hoedown(infile, extensions);
-
-    /* get article title */
-    pair->title = get_title(buf);
-    list_add(sen, pair);
-
-	/* writing the result to file */
-    out = fopen(outfile, "w");
-    if ((in = fopen(template, "r")) == NULL) {
-        perror("template open error");
-        return 1;
+    chdir("site/art");
+    if ((dp = opendir("../../src")) == NULL) {
+        perror("open error");
+        exit(1);
     }
-
-    while (fgets(line, MAXLINE, in) != NULL) {
-        if (strstr(line, "\%title\%") != NULL) {
-            outline = str_rep(line, "\%title\%", pair->title);
-            strcpy(line, outline);
-            free(outline);
-        }
-
-        if (strstr(line, "\%url\%") != NULL) {
-            outline = str_rep(line, "\%url\%", pair->date);
-            strcpy(line, outline);
-            free(outline);
-        }
-
-        if (strstr(line, "\%id\%") != NULL) {
-            outline = str_rep(line, "\%id\%", pair->date);
-            strcpy(line, outline);
-            free(outline);
-        }
-
-        if (strstr(line, "\%content\%") != NULL) {
-            fwrite(buf->data, 1, buf->size, out);
+    /* process each single file */
+    while ((dirp = readdir(dp)) != NULL) {
+        if (!strcmp(dirp->d_name, ".") || !strcmp(dirp->d_name, ".."))
             continue;
-        }
 
-        fputs(line, out);
+        pair = malloc(sizeof(type));
+        pair->date = get_date(dirp->d_name);
+    
+        sprintf(infile, "../../src/%s", dirp->d_name);
+        sprintf(outfile, "%s.html", pair->date);
+        sprintf(template, "../../temp/art.html");
+    
+        buf = hoedown(infile, extensions);
+    
+        /* get article title */
+        pair->title = get_title(buf);
+        list_add(sen, pair);
+    
+	    /* writing the result to file */
+        out = fopen(outfile, "w");
+        if ((in = fopen(template, "r")) == NULL) {
+            perror("template open error");
+            return 1;
+        }
+    
+        while (fgets(line, MAXLINE, in) != NULL) {
+            if (strstr(line, "\%title\%") != NULL) {
+                outline = str_rep(line, "\%title\%", pair->title);
+                strcpy(line, outline);
+                free(outline);
+            }
+    
+            if (strstr(line, "\%url\%") != NULL) {
+                outline = str_rep(line, "\%url\%", pair->date);
+                strcpy(line, outline);
+                free(outline);
+            }
+    
+            if (strstr(line, "\%id\%") != NULL) {
+                outline = str_rep(line, "\%id\%", pair->date);
+                strcpy(line, outline);
+                free(outline);
+            }
+    
+            if (strstr(line, "\%content\%") != NULL) {
+                fwrite(buf->data, 1, buf->size, out);
+                continue;
+            }
+    
+            fputs(line, out);
+        }
+    
+	    if (ferror(out)) {
+		    fprintf(stderr, "I/O errors found while writing output.\n");
+		    return 1;
+	    }
+    
+        fclose(out);
+        fclose(in);
     }
 
-	if (ferror(out)) {
-		fprintf(stderr, "I/O errors found while writing output.\n");
-		return 1;
-	}
-
-    fclose(out);
-    fclose(in);
-
+    chdir("../../");
     return 0;
 }
 
@@ -333,7 +353,7 @@ get_title(hoedown_buffer *buf)
 void
 build_index(list sen)
 {
-    int     i, cnt, cur, last;
+    int     i, j, k, num, cnt, cur, last, page;
     char    index[256], template[256], date[11];
     char    *outline, line[MAXLINE+1];
     char    site[] = "Seamwills";
@@ -342,54 +362,122 @@ build_index(list sen)
     if (sen->next == NULL)
         return;
 
-    sprintf(index, "site/index.html");
-    sprintf(template, ".sim/index.html");
-
+    sprintf(template, "temp/idx.html");
     in = fopen(template, "r");
-    out = fopen(index, "w");
 
     date_sort(sen);
-    cnt = last = 0;
-    while (fgets(line, MAXLINE, in) != NULL) {
-        if (strstr(line, "\%title\%") != NULL) {
-            outline = str_rep(line, "\%title\%", site);
-            fputs(outline, out);
-            free(outline);
-            continue;
-        }
+    cnt = num = last = page = 0;
+
+    position p;
+    p = sen->next;
+    while (p != sen) {
+        num++;
+        p = p->next;
+    }
+
+    p = sen->next;
+    j = 0;
+    while (j != num) {
+        page = j / numperpage + 1;
         
-        if (strstr(line, "\%content\%") != NULL) {
-            fputs("<ul>\n", out);
+        if (page == 1) {
+            sprintf(index, "site/index.html");
+            out = fopen(index, "w");
+            while (fgets(line, MAXLINE, in) != NULL) {
+                if (strstr(line, "\%title\%") != NULL) {
+                    outline = str_rep(line, "\%title\%", site);
+                    fputs(outline, out);
+                    free(outline);
+                    continue;
+                }
+                if (strstr(line, "\%content\%") != NULL) {
+                    fputs("<ul>\n", out);
+                    
+                    while (p != sen) {
+                        cnt++;
+                        for (i = 0; i < 10; i++)
+                            date[i] = p->data->date[i];
+                        date[i] = '\0';
+                        cur = atoi(date);
+                        if (cur != last)
+                            fprintf(out, "<span class=\"year\">%d</span><br />\n", cur);
+                        last = cur;
+                        fprintf(out, "<li><span class=\"date\">%s</span>"
+                                " <span class=\"title\"><a href=\"art/%s.html\">"
+                                "%s</a></span></li>\n",
+                                p->data->date, date, p->data->title);
+                        p = p->next;
+                        if (cnt % numperpage == 0)
+                            break;
+                    }
+                    fputs("</ul>\n", out);
 
-            position p;
-            p = sen->next;
-            while (p != sen) {
-                for (i = 0; i < 10; i++)
-                    date[i] = p->data->date[i];
-                date[i] = '\0';
-
-                cur = atoi(date);
-                if (cur != last)
-                    fprintf(out, "<span class=\"year\">%d</span><br />\n", cur);
-                last = cur;
-                fprintf(out, "<li><span class=\"date\">%s</span>"
-                        " <span class=\"title\"><a href=\"%s.html\">"
-                        "%s</a></span></li>\n",
-                        p->data->date, date, p->data->title);
-
-                cnt++;
-                if (cnt % 20 == 0 && p->next != sen) {
-                    fprintf(out, "<hr />\n");
+                    // index
+                    fputs("\n<div id=\"index\">\n<ul>\n", out);
+                    for (k = 1; k <= num / numperpage + 1; k++) {
+                        if (k == page)
+                            fprintf(out, "<li class=\"curpage\">%d</li>\n", k);
+                        else
+                            fprintf(out, "<li><a href = \"idx/page%d.html\">%d</a></li>\n", k, k);
+                    }
+                    fputs("</ul>\n</div>\n", out);
+                    continue;
                 }
 
-                p = p->next;
+                fputs(line, out);
             }
+            j = cnt;
+        } else {
+            sprintf(index, "site/idx/page%d.html", page);
+            fclose(out);
+            fclose(in);
+            in = fopen(template, "r");
+            out = fopen(index, "w");
+            while (fgets(line, MAXLINE, in) != NULL) {
+                if (strstr(line, "\%title\%") != NULL) {
+                    outline = str_rep(line, "\%title\%", site);
+                    fputs(outline, out);
+                    free(outline);
+                    continue;
+                }
+                if (strstr(line, "\%content\%") != NULL) {
+                    fputs("<ul>\n", out);
+                    
+                    while (p != sen) {
+                        cnt++;
+                        for (i = 0; i < 10; i++)
+                            date[i] = p->data->date[i];
+                        date[i] = '\0';
+                        cur = atoi(date);
+                        if (cur != last)
+                            fprintf(out, "<span class=\"year\">%d</span><br />\n", cur);
+                        last = cur;
+                        fprintf(out, "<li><span class=\"date\">%s</span>"
+                                " <span class=\"title\"><a href=\"../art/%s.html\">"
+                                "%s</a></span></li>\n",
+                                p->data->date, date, p->data->title);
+                        p = p->next;
+                        if (cnt % numperpage == 0)
+                            break;
+                    }
+                    fputs("</ul>\n", out);
+                    // index
+                    fputs("\n<div id=\"index\">\n<ul>\n", out);
+                    for (k = 1; k <= num / numperpage + 1; k++) {
+                        if (k == page)
+                            fprintf(out, "<li class=\"curpage\">%d</li>\n", k);
+                        else if (k == 1)
+                            fprintf(out, "<li><a href = \"../index.html\">%d</a></li>\n", k);
+                        else
+                            fprintf(out, "<li><a href = \"page%d.html\">%d</a></li>\n", k, k);
+                    }
+                    fputs("</ul>\n</div>\n", out);
+                    continue;
+                }
 
-            fputs("</ul>\n", out);
-            continue;
+                fputs(line, out);
+            }
         }
-
-        fputs(line, out);
+        j = cnt;
     }
 }
-

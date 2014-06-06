@@ -5,12 +5,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
+#include <unistd.h>
 
 #define IUNIT 1024
 #define OUNIT 64
 #define MAXLINE 4096
 
 #define VACANT "无题"
+#define numperpage 15
 
 typedef struct data {
     char    *date;
@@ -55,8 +57,11 @@ void
 date_sort(list sen);
 
 /* file process */
+void
+handle_source(list sen);
+
 int
-do_file(char *name, list sen);
+process_file(list sen, unsigned extensions);
 
 hoedown_buffer *
 hoedown(char *file, unsigned int extensions);
