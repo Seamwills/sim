@@ -1,0 +1,374 @@
+/* Style reset */
+
+* {margin:0; padding:0;}
+
+/* Basic typography */
+
+body {
+    background: #f8f8f8;
+    font-size: 100%;
+    font-family: '宋体', Helvetica, Serif;
+    color: #444;
+    overflow-y: scroll;
+}
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+h1 {
+    font-size: 2.25em;
+}
+h2 {
+    font-size: 1.875em;
+}
+h3 {
+    font-size: 1.5em;
+}
+h4 {
+    font-size: 1.125em;
+}
+h5 {
+    font-size: 0.875em;
+}
+h6 {
+    font-size: 0.75em;
+}
+p {
+    font-size: 1em;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+blockquote {
+    border-left: 4px solid #cdcdcd;
+    margin-left: 2em;
+}
+a,
+a:visited {
+    color: #007a39;
+    text-decoration: none;
+}
+a:hover {
+    color: #00a84d;
+    border-bottom: 1px solid;
+}
+
+/* Blog theme style */
+
+/* Navigation */
+#navbar {
+    position: relative;
+    height: 80px;
+    background: #95b304;
+    font-family: 'Helvetica';
+}
+.brand {
+    float: left;
+    height: 40px;
+}
+.brand a {
+    display: inline-block;
+    padding: 4px 20px;
+    line-height: 40px;
+    font-size: 1.2em;
+    color: #404d02;
+    text-decoration: none;
+    transition: border 0.6s, color 0.6s;
+}
+.brand a:hover {
+    color: #002B36;
+    border-bottom: none;
+    border-color: #002B36;;
+}
+.nav {
+    max-width: 800px;
+    margin: auto;
+    height: 100%;
+    line-height: 80px;
+    font-family: '微软雅黑';
+    box-sizing: border-box;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+ul.menu {
+    list-style-type: none;
+    height: 100%;
+    float: right;
+}
+.menu li {
+    float: left;
+    font-size: 1.0em;
+    margin-right: 6px;
+}
+.menu li.active a {
+    color: #1c3c01;
+    border-bottom: 2px solid #444;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+}
+.menu li a {
+    color: #f8f8f8;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-bottom: 8px;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.4s, border 0.5s;
+}
+.menu li a:hover {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+#mobile-menu {
+    display: none;
+    height: 40px;
+    float: right;
+}
+#mobile-menu a {
+    font-size: 2em;
+    color: #444;
+}
+#mobile-menu a:hover {
+    color: #002B36;
+    border-bottom: none;
+}
+
+/* Blog content */
+#container {
+    max-width: 800px;
+    margin: auto;
+    box-sizing: border-box;
+    padding-top: 80px;
+    padding-left: 2.5em;
+    padding-right: 2.5em;
+}
+.blog-post {
+    margin-bottom: 80px;
+    overflow: hidden;
+}
+.blog-post h3 {
+    text-indent: 1.333em;
+}
+.blog-post h3 a{
+    transition: color 0.5s;
+}
+.blog-post h3 a:hover {
+    border-bottom: none;
+}
+.blog-post p {
+    text-indent: 2em;
+}
+.blog-post-info {
+    float: right;
+    padding-bottom: 8px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-family: 'Helvetica';
+    border-bottom: 1px solid #ccc;
+}
+.blog-post-info i {
+    margin-right: 5px;
+    font-size: 1.2em;
+    vertical-align: -4%;
+}
+.tag {
+    margin-right: 10px;
+}
+.date {
+}
+.blog-post blockquote p {
+    padding-top: 4px;
+    padding-left: 2em;
+    text-indent: 0;
+}
+.read-more {
+    margin-bottom: 2em;
+}
+.read-more a {
+    color: #AB1027;
+}
+.read-more i {
+    font-size: 1.2em;
+    vertical-align: -20%;
+}
+
+/* Go to top */
+#indicator {
+    position: fixed;
+    right: 50px;
+    bottom: 45px;
+}
+#indicator a {
+    display: block;
+    height: 20px;
+    font-size: 2em;
+    color: #444;
+    margin-bottom: 4px;
+}
+#indicator a:hover {
+    color: #95B304;
+    border-bottom: none;
+}
+
+#article-delimiter {
+    clear: both;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.blog-archive {
+    margin-bottom: 40px;
+    font-family: 'Helvetica';
+}
+.blog-archive-title {
+    text-align: center;
+}
+.blog-archive-year {
+    font-size: 1.6em;
+    margin-top: 20px;
+    margin-bottom: 16px;
+}
+.blog-archive-item {
+    padding-bottom: 10px;
+}
+.blog-archive-item span {
+    display: inline-block;
+    margin-right: 10px;
+    font-size: 0.95em;
+}
+/* Footer */
+#footer {
+    margin: auto;
+    font-family: 'Helvetica';
+    padding-top: 10px;
+    margin-bottom: 10px;
+    border-top: 1px solid #ccc;
+    font-size: 0.95em;
+    text-align: center;
+}
+
+/* Small screen interface */
+@media (max-width: 900px) {
+    #container {
+        padding-left: 1.5em;;
+        padding-right: 1.5em;
+    }
+    #indicator {
+        display: none;
+    }
+    #navbar {
+        height: 40px;
+        line-height: 40px;
+    }
+    .brand a {
+        padding: 0;
+    }
+    .nav {
+        line-height: 40px;
+        height: 40px;
+        padding-left: 4%;
+        padding-right: 4%;
+    }
+    ul.menu {
+        display: none;
+        position: absolute;
+        margin: 0;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #95B304;
+        height: auto;
+        float: none;
+    }
+    .menu li {
+        float: none;
+        border-top: 1px solid #809903;
+        width: 100%;
+        height: 40px;
+    }
+    .menu li a {
+        display: block;
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        padding: 0;
+        padding-left: 4%;
+        transition: none;
+        border-bottom: none;
+    }
+    .menu li.active a {
+        border-bottom: none; 
+    }
+    .menu li.active {
+        background: #8ba603;
+    }
+    .menu li a:hover {
+        border-bottom: none;
+    }
+    #mobile-menu {
+        display: block;
+    }
+}
+/* For iPad 2048x1536 portrait */
+@media only screen
+and (min-device-width: 768px)
+and (max-device-width: 1024px)
+and (orientation: portrait)
+and (-webkit-min-device-pixel-ratio: 1) {
+    #container {
+        padding-left: 1.5em;;
+        padding-right: 1.5em;
+    }
+    #indicator {
+        display: none;
+    }
+    #navbar {
+        height: 40px;
+        line-height: 40px;
+    }
+    .brand a {
+        padding: 0;
+    }
+    .nav {
+        line-height: 40px;
+        height: 40px;
+        padding-left: 4%;
+        padding-right: 4%;
+    }
+    ul.menu {
+        display: none;
+        position: absolute;
+        margin: 0;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: #95B304;
+        height: auto;
+        float: none;
+    }
+    .menu li {
+        float: none;
+        border-top: 1px solid #809903;
+        width: 100%;
+        height: 40px;
+    }
+    .menu li a {
+        display: block;
+        width: 100%;
+        height: 40px;
+        line-height: 40px;
+        padding: 0;
+        padding-left: 4%;
+        transition: none;
+        border-bottom: none;
+    }
+    .menu li.active a {
+        border-bottom: none; 
+    }
+    .menu li.active {
+        background: #8ba603;
+    }
+    .menu li a:hover {
+        border-bottom: none;
+    }
+    #mobile-menu {
+        display: block;
+    }
+}
